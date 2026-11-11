@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>반도체 선행지표 대시보드</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>반도체 선행지표 대시보드</h1>
+    <p class="sub">메모리 매출 = <b>P</b>(판가, ASP) × <b>Q</b>(출하량, B/G). "2028년 P가 내려가도 Q가 더 커서 성장이 이어지는가?"를 지표로 점검합니다.</p>
+    <p class="sub muted" id="asof"></p>
+    <div class="key">
+      <span><i class="sw sw-off"></i>회사 공식(실적)</span>
+      <span><i class="sw sw-gui"></i>가이던스(회사 계획)</span>
+      <span><i class="sw sw-est"></i>증권가·리서치 추정 / 계산값</span>
+      <span><i class="sw sw-uv"></i>검증 대기(출처 재확인 필요)</span>
+      <span class="muted">· 그래프에 마우스를 올리면 출처·발표일이 보입니다</span>
+    </div>
+    <nav class="nav">
+      <a href="#s6">점검판</a><a href="#s1">1 수요</a><a href="#s2">2 재고</a><a href="#s3">3 가격</a><a href="#s4">4 공급</a><a href="#s5">5 결과</a><a href="#missing">확인 못 한 항목</a><a href="#src">출처</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section id="s6">
+  <h2>6. 점검판 <small>지표별 지금 상태 한눈에</small></h2>
+  <div class="tablewrap"><table class="grid" id="checkTable"></table></div>
+  <h3>내 가설 점검표</h3>
+  <div id="hypo"></div>
+</section>
+
+<section id="s1">
+  <h2>1. 수요: 빅테크(M7 + 하이퍼스케일러) 설비투자 <small>메모리를 사 가는 쪽의 지갑</small></h2>
+  <p class="explain">하이퍼스케일러(초대형 클라우드 회사)의 Capex(설비투자: 데이터센터·서버·GPU 구매)는 메모리 수요의 원천입니다. <b>금액보다 "증가율이 꺾이는지"</b>가 핵심 신호예요.</p>
+  <div class="card"><h4>① 회사별 분기 설비투자 실적 (십억 달러, 달력 분기)</h4><div class="cv tall"><canvas id="c_capexQ"></canvas></div>
+    <p class="note">정의가 회사마다 달라요: 마이크로소프트·메타 = 리스(빌려 쓰는 데이터센터) 포함, 알파벳·아마존 = 현금 설비구매. 애플·엔비디아·테슬라는 이번에 숫자를 확인하지 못해 빈칸입니다.</p></div>
+  <div class="card"><h4>② 2026년 연간 Capex 가이던스 변경 이력 (중간값, 십억 달러)</h4><div class="cv"><canvas id="c_guid"></canvas></div>
+    <details><summary>가이던스 변경표 펼치기 (범위·상향/하향·근거)</summary><div class="tablewrap"><table class="grid small" id="guidTable"></table></div></details></div>
+  <div class="card"><h4>③ 4대 하이퍼스케일러 합계 Capex 전년 대비 증가율 (%) <span class="badge">핵심 신호</span></h4><div class="cv"><canvas id="c_yoy"></canvas></div>
+    <p class="note" id="yoyNote"></p></div>
+  <div class="row2">
+    <div class="card"><h4>④ 영업현금흐름 vs 설비투자 vs FCF (26Q3, 십억 달러)</h4><div class="cv"><canvas id="c_fcf"></canvas></div>
+      <p class="note">FCF(잉여현금흐름) = 영업으로 번 현금 − 설비투자. 마이너스면 투자 일부를 빚·보유현금으로 메운다는 뜻.</p></div>
+    <div class="card"><h4>보조: 5년물 CDS (bp, 부도 보험료)</h4><div class="cv"><canvas id="c_cds"></canvas></div>
+      <p class="note">CDS(신용부도스와프)는 "이 회사가 망하면 보상받는 보험"의 가격. 1bp = 0.01%p. 오를수록 시장이 빚 부담을 걱정한다는 뜻.</p></div>
+  </div>
+</section>
+
+<section id="s2">
+  <h2>2. 고객 재고 (대체 지표) <small>고객 창고가 차고 있나</small></h2>
+  <p class="explain">2022~23년 불황은 코로나 특수 뒤 <b>고객 재고 과잉</b>(수요 충격형)에서 왔습니다. 고객 재고는 공개 숫자 시리즈가 없어서 서버·PC 회사의 재고자산과 메모리 회사 콜 발언으로 대신 봅니다.</p>
+  <div class="row2">
+    <div class="card"><h4>서버·PC 회사 재고자산 (십억 달러)</h4><div class="cv"><canvas id="c_inv"></canvas></div></div>
+    <div class="card"><h4>재고일수 (일) <small class="muted">재고 ÷ 매출원가 × 91</small></h4><div class="cv"><canvas id="c_dio"></canvas></div></div>
+  </div>
+  <div class="card"><h4>서버·PC 회사 코멘트 (숫자 대신 확인된 내용)</h4><ul id="oemNotes" class="notes"></ul></div>
+  <div class="card"><h4>메모리 3사 실적 콜의 "고객 재고" 표현</h4><div class="tablewrap"><table class="grid" id="callTable"></table></div><p class="note" id="callNote"></p></div>
+</section>
+
+<section id="s3">
+  <h2>3. D램 가격 <small>P(판가)의 실시간 온도계</small></h2>
+  <p class="explain">현물가(그날 시장에서 사고파는 값)는 계약가(고객과 매달 정하는 값)보다 2~3개월 먼저 움직이는 경향이 있습니다. <b>가격 수준보다 "상승률이 줄어드는지"</b>를 보세요.</p>
+  <div class="card"><h4>① D램 현물가격 (달러, 세션 평균)</h4><div class="cv"><canvas id="c_spot"></canvas></div>
+    <p class="note">과거 점은 기사에서 확인된 것만. 이후는 매일 기록(자동 스크립트 또는 아래 수동 입력)이 쌓입니다.</p></div>
+  <div class="row2">
+    <div class="card"><h4>② PC용 DDR4 8Gb 월 고정거래(계약)가격 (달러)</h4><div class="cv"><canvas id="c_contract"></canvas></div>
+      <p class="note">DDR4·DDR5 16Gb 계약가 월별 시리즈는 공개 기사에서 찾지 못해, 매달 보도되는 DDR4 8Gb 계약가로 대신합니다.</p></div>
+    <div class="card"><h4>② 전월 대비 변화율 (%) <span class="badge">핵심 신호</span></h4><div class="cv"><canvas id="c_mom"></canvas></div>
+      <p class="note" id="momNote"></p></div>
+  </div>
+  <div class="card" id="spotForm">
+    <h4>현물가 수동 입력 <small class="muted">(자동 기록이 막히면 여기에)</small></h4>
+    <form id="fSpot" class="form">
+      <label>날짜 <input type="date" name="d" required></label>
+      <label>DDR4 16Gb ($) <input type="number" step="0.001" name="ddr4"></label>
+      <label>DDR5 16Gb ($) <input type="number" step="0.001" name="ddr5"></label>
+      <label class="wide">출처(URL 또는 메모) <input type="text" name="src" placeholder="https://www.dramexchange.com/ (조회일)"></label>
+      <button type="submit">추가</button>
+    </form>
+    <p class="note">입력값은 이 브라우저에만 임시 저장됩니다. 영구 저장하려면 아래 <b>[기록 파일용 복사]</b>를 눌러 나온 명령을 터미널에 붙여 넣으세요(spot_log.js에 추가됨).</p>
+    <div class="formbtns"><button id="bCopy" type="button">기록 파일용 복사</button><button id="bClear" type="button" class="ghost">임시 입력 비우기</button></div>
+    <pre id="copyOut" class="out" hidden></pre>
+  </div>
+</section>
+
+<section id="s4">
+  <h2>4. 공급: 메모리 5사 설비투자와 팹 일정 <small>Q(출하량)가 언제 얼마나 풀리나</small></h2>
+  <p class="explain">팹(반도체 공장)은 착공 → 클린룸(먼지 없는 방) 개방 → 장비 반입 → 양산 → 풀캐파(최대 생산)까지 2~3년 걸립니다. 허니버터칩처럼 <b>"품귀 절정에 결정한 증설이 한꺼번에 완성되는 시점"</b>이 위험 구간이에요.</p>
+  <div class="card"><h4>① 회사별 연간 설비투자 (십억 달러 환산)</h4><div class="cv"><canvas id="c_supCapex"></canvas></div>
+    <p class="note" id="supNote"></p><ul class="notes" id="supNotes"></ul></div>
+  <div class="card"><h4>② 팹 일정 간트 차트 (착공 → 클린룸·장비 → 양산 램프 → 풀캐파)</h4><div class="cv xtall"><canvas id="c_gantt"></canvas></div>
+    <p class="note">노란 띠 = 2028년 상·하반기. 흐린·빗금 막대 = 가이던스·추정. 중국 2사(CXMT·YMTC)는 공개 일정이 거의 없어 비어 있습니다.</p></div>
+  <div class="card"><h4>③ 2028년에 가동이 몰리는 팹</h4><div class="tablewrap"><table class="grid" id="t2028"></table></div></div>
+</section>
+
+<section id="s5">
+  <h2>5. 결과 확인 (후행지표) <small>P와 Q 중 무엇이 성장을 끄나</small></h2>
+  <p class="explain">B/G(비트 그로스: 출하량 증가율)와 ASP(평균판매가격) 변화율을 나란히 봅니다. <b>ASP 하락폭이 B/G 증가폭보다 큰 분기가 2번 연속</b>이면 가설이 깨지는 신호예요.</p>
+  <div class="row3" id="pqCharts"></div>
+  <div class="card"><h4>영업이익률 추이 (%)</h4><div class="cv"><canvas id="c_opm"></canvas></div>
+    <p class="note">삼성은 회사 전체, 마이크론은 매출총이익률이라 하이닉스와 직접 비교하면 안 됩니다.</p></div>
+</section>
+
+<section id="missing">
+  <h2>확인 못 한 항목 <small>빈칸·검증 대기 목록 (데이터 파일에 숫자를 넣으면 자동으로 사라짐)</small></h2>
+  <div id="missList"></div>
+</section>
+
+<section id="src">
+  <h2>출처</h2>
+  <div class="tablewrap"><table class="grid small" id="srcTable"></table></div>
+</section>
+
+<footer class="muted">투자 권유가 아닌 공부용 도구입니다. 숫자는 data/ 폴더의 파일을 고치면 바로 반영됩니다.</footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="data/sources.js"></script>
+<script src="data/demand.js"></script>
+<script src="data/inventory.js"></script>
+<script src="data/prices.js"></script>
+<script src="data/spot_log.js"></script>
+<script src="data/supply.js"></script>
+<script src="data/results.js"></script>
+<script src="data/checklist.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
